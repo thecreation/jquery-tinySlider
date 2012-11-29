@@ -1,0 +1,36 @@
+.tiny-container {
+  max-width: 960px;
+}
+.tiny-viewport {
+  position: relative;
+  list-style: none;
+  overflow: hidden;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+
+  &[data-animation="fade"]{
+    li {
+      position: relative;
+      margin-right: -100%;
+      float: left;
+    }
+  }
+
+  li {
+    display: none;
+    width: 100%;
+
+    &.tiny-slide-active {
+      display: block;
+    }
+  }
+
+  img {
+    display: block;
+    height: auto;
+    width: 100%;
+    border: 0;
+  }
+}
+

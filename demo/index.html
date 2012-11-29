@@ -27,11 +27,37 @@
 <![endif]-->
 
 <h1>jQuery tinySlider</h1>
-
+<div class="slides">
+	<ul>
+		<li>
+		  <img src="img/1.jpg" />
+		</li>
+		<li>
+		  <img src="img/2.jpg" />
+		</li>
+		<li>
+		  <img src="img/3.jpg" />
+		</li>
+		<li>
+		  <img src="img/4.jpg" />
+		</li>
+		<li>
+		  <img src="img/5.jpg" />
+		</li>
+		<li>
+		  <img src="img/6.jpg" />
+		</li>
+	</ul>
+</div>
 
 <script type="text/javascript">
 $(document).ready( function() {
-
+	$('.slides').tinySlider({
+		pager: true,
+		nav: true,
+		random: true,
+		delay: 4000
+	});
 });
 </script>
 </body>
