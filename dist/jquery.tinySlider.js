@@ -2,13 +2,8 @@
 * https://github.com/KaptinLin/tinySlider
 * Copyright (c) 2012 KaptinLin; Licensed GPL */
 
-/*! TinySlider - v0.1.0 - 2012-11-26
- * https://github.com/KaptinLin/tinySlider
- * Copyright (c) 2012 KaptinLin; Licensed GPL */
-
 (function(window, document, $, undefined) {
     "use strict";
-
 
     // Constructor
     var TinySlider = $.TinySlider = function(element, options) {
@@ -65,35 +60,35 @@
                 self.active(self.current);
 
                 // Auto start
-                if(self.options.autoplay){
+                if (self.options.autoplay) {
                     self.autoplay.enabled = true;
                     self.autoplay.start();
                 }
 
                 // Bind logic
-                self.$viewport.on('animation_end', function(e, data){
+                self.$viewport.on('animation_end', function(e, data) {
                     e.stopPropagation();
 
                     self.current = data.index;
                     self.active(data.index);
 
-                    if(self.autoplay.enabled){
+                    if (self.autoplay.enabled) {
                         self.autoplay.start();
                     }
                 });
             },
             autoplay: {
-                enabled : false,
-                start: function(){
-                    self.autoplay.timeout = setTimeout(function(){
-                      self.go();
+                enabled: false,
+                start: function() {
+                    self.autoplay.timeout = setTimeout(function() {
+                        self.go();
                     }, self.options.delay);
                 },
-                stop: function(){
+                stop: function() {
                     clearTimeout(self.autoplay.timeout);
                 }
             },
-            active: function(i){
+            active: function(i) {
                 self.$slides.removeClass(self.classes.activeSlide).eq(i).addClass(self.classes.activeSlide);
             },
             pager: {
@@ -111,15 +106,15 @@
                     self.pager.$items = self.$pager.children();
                     self.pager.bind();
                 },
-                bind: function(){
-                    self.$viewport.on('go', function(e, data){
+                bind: function() {
+                    self.$viewport.on('go', function(e, data) {
                         self.pager.active(data.index);
                     });
-                    self.$pager.delegate('li', "click", function(){
+                    self.$pager.delegate('li', "click", function() {
                         self.goTo($(this).index());
                     });
                 },
-                active: function(i){
+                active: function(i) {
                     self.pager.$items.removeClass(self.classes.activePager).eq(i).addClass(self.classes.activePager);
                 }
             },
@@ -129,10 +124,10 @@
 
                     self.$nav.appendTo(self.$element);
 
-                    self.$nav.delegate('a', "click", function(){
-                        if($(this).is(namespace + '-nav-prev')){
+                    self.$nav.delegate('a', "click", function() {
+                        if ($(this).is(namespace + '-nav-prev')) {
                             self.next();
-                        }else{
+                        } else {
                             self.prev();
                         }
                     });
@@ -142,13 +137,13 @@
                 fade: function(e, data) {
                     e.stopPropagation();
 
-                    self.$viewport.trigger('animation_start',{
+                    self.$viewport.trigger('animation_start', {
                         current: self.current,
                         index: data.index
                     });
                     self.$slides.eq(self.current).fadeOut(self.options.duration, self.options.easing);
                     self.$slides.eq(data.index).fadeIn(self.options.duration, self.options.easing, function() {
-                        self.$viewport.trigger('animation_end',{
+                        self.$viewport.trigger('animation_end', {
                             index: data.index
                         });
                     });
@@ -205,7 +200,7 @@
             this.autoplay.stop();
         },
         stop: function() {
-             this.autoplay.enabled = false;
+            this.autoplay.enabled = false;
             this.autoplay.stop();
         },
         next: function() {
@@ -216,13 +211,13 @@
             var prev = this.current - 1 < 0 ? this.$slides.length - 1 : this.current - 1;
             this.goTo(prev);
         },
-        go: function(){
+        go: function() {
             var next = this.current + 1 >= this.$slides.length ? 0 : this.current + 1;
             this.goTo(next);
         },
         goTo: function(index) {
             this.$viewport.trigger('go', {
-              index: index
+                index: index
             });
         },
         update: function() {

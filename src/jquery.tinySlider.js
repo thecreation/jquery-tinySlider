@@ -1,10 +1,5 @@
-/*! TinySlider - v0.1.0 - 2012-11-26
- * https://github.com/KaptinLin/tinySlider
- * Copyright (c) 2012 KaptinLin; Licensed GPL */
-
 (function(window, document, $, undefined) {
     "use strict";
-
 
     // Constructor
     var TinySlider = $.TinySlider = function(element, options) {
@@ -58,6 +53,8 @@
 
                 // Active the first slide
                 self.current = 0;
+                self.wait = null;
+                self.sliding = false;
                 self.active(self.current);
 
                 // Auto start
@@ -67,20 +64,33 @@
                 }
 
                 // Bind logic
+                self.$viewport.on('animation_start', function(e, data) {
+                    e.stopPropagation();
+
+                    self.sliding = true;
+                });
+
                 self.$viewport.on('animation_end', function(e, data) {
                     e.stopPropagation();
 
+                    self.sliding = false;
                     self.current = data.index;
                     self.active(data.index);
 
-                    if (self.autoplay.enabled) {
+                    if (self.wait) {
+                        self.goTo(self.wait);
+                    } else if (self.autoplay.enabled) {
                         self.autoplay.start();
                     }
                 });
             },
             autoplay: {
                 enabled: false,
+                timeout: null,
                 start: function() {
+                    if(self.autoplay.timeout){
+                        clearTimeout(self.autoplay.timeout);
+                    }
                     self.autoplay.timeout = setTimeout(function() {
                         self.go();
                     }, self.options.delay);
@@ -217,9 +227,14 @@
             this.goTo(next);
         },
         goTo: function(index) {
-            this.$viewport.trigger('go', {
-                index: index
-            });
+            if(this.sliding){
+                self.wait = index;
+            }else{
+                self.wait = null;
+                this.$viewport.trigger('go', {
+                    index: index
+                });
+            }
         },
         update: function() {
 
