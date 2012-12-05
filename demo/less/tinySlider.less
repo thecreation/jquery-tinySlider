@@ -21,20 +21,17 @@
   }
 
   &[data-animation="slide"]{
-    [data-sliding]{
-      width: 200%;
-      li {
-        width: 50%;
-      }
-    }
-    [data-sliding="loop"]{
-      li {
-        float: right;
-      }
-    }
     li {
       position: relative;
       float: left;
+      display: block;
+    }
+    [data-cycle] li {
+      display: none;
+      float: right;
+      &.tiny-slide-active {
+        display: block;
+      }
     }
   }
 

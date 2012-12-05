@@ -70,6 +70,7 @@
                 // Active the first slide
                 self.current = 0;
                 self.wait = null;
+                self.cycle = false;
                 self.sliding = false;
                 self.active(self.current);
 
@@ -199,51 +200,56 @@
                     }
                 },
                 slide: {
-                    setup: function() {},
+                    setup: function() {
+                        var width = self.$viewport.width();
+                        self.$slides.width(width);
+                        self.$ul.width(100 * self.$slides.length + '%');
+                    },
                     run: function(data) {
-                        var direction, sliding = 'true';
-                        if (data.index > self.current) {
-                            direction = 'next';
-                        } else {
-                            direction = 'prev';
-                        }
-                        if (data.index === 0 && self.current === self.$slides.length - 1) {
-                            direction = 'next';
-                            sliding = 'loop';
-                        } else if (self.current === 0 && data.index === self.$slides.length - 1) {
-                            direction = 'prev';
-                            sliding = 'loop';
-                        }
-
-                        var from = self.$slides.eq(self.current),
-                            to = self.$slides.eq(data.index);
-                        self.$ul.attr('data-sliding', sliding);
-                        to.show();
-                        if (direction === 'next') {
+                        if (!self.cycle) {
                             self.$ul.animate({
-                                marginLeft: '-100%'
+                                marginLeft: '-' + data.index * 100 + '%'
                             }, self.options.duration, self.options.easing, function() {
-                                self.$ul.css({
-                                    marginLeft: ''
-                                });
-                                from.hide();
-                                self.$ul.attr('data-sliding', null);
                                 self.$viewport.trigger('animation_end', {
                                     index: data.index
                                 });
                             });
                         } else {
-                            self.$ul.css({
-                                marginLeft: '-100%'
-                            }).animate({
-                                marginLeft: 0
-                            }, self.options.duration, self.options.easing, function() {
-                                from.hide();
-                                self.$ul.attr('data-sliding', null);
-                                self.$viewport.trigger('animation_end', {
-                                    index: data.index
+                            self.$ul.attr('data-cycle', self.cycle);
+                            self.$slides.eq(data.index).css('display', 'block');
+                            self.$ul.width('200%');
+
+                            if (self.cycle === 'prev') {
+                                self.$ul.css('marginLeft', '-100%').animate({
+                                    marginLeft: null
+                                }, self.options.duration, self.options.easing, function() {
+                                    self.$ul.attr('data-cycle', null);
+                                    self.$slides.eq(data.index).css('display', null);
+                                    self.$ul.css({
+                                        width: 100 * self.$slides.length + '%',
+                                        marginLeft: '-' + data.index * 100 + '%'
+                                    });
+                                    self.cycle = false;
+                                    self.$viewport.trigger('animation_end', {
+                                        index: data.index
+                                    });
                                 });
-                            });
+                            }else{
+                                self.$ul.css('marginLeft', '0').animate({
+                                    marginLeft: '-100%'
+                                }, self.options.duration, self.options.easing, function() {
+                                    self.$ul.attr('data-cycle', null);
+                                    self.$slides.eq(data.index).css('display', null);
+                                    self.$ul.css({
+                                        width: 100 * self.$slides.length + '%',
+                                        marginLeft: '-' + data.index * 100 + '%'
+                                    });
+                                    self.cycle = false;
+                                    self.$viewport.trigger('animation_end', {
+                                        index: data.index
+                                    });
+                                });
+                            }
                         }
                     }
                 }
@@ -332,11 +338,19 @@
             this.autoplay.stop();
         },
         next: function() {
-            var next = this.current + 1 >= this.$slides.length ? 0 : this.current + 1;
+            var next = this.current + 1;
+            if (next >= this.$slides.length) {
+                next = 0;
+                this.cycle = 'next';
+            }
             this.goTo(next);
         },
         prev: function() {
-            var prev = this.current - 1 < 0 ? this.$slides.length - 1 : this.current - 1;
+            var prev = this.current - 1;
+            if (prev < 0) {
+                prev = this.$slides.length - 1;
+                this.cycle = 'prev';
+            }
             this.goTo(prev);
         },
         go: function() {

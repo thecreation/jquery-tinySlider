@@ -21,21 +21,19 @@
   float: left;
 }
 
-.tiny-viewport[data-animation="slide"] [data-sliding] {
-  width: 200%;
+.tiny-viewport[data-animation="slide"] li {
+  position: relative;
+  display: block;
+  float: left;
 }
 
-.tiny-viewport[data-animation="slide"] [data-sliding] li {
-  width: 50%;
-}
-
-.tiny-viewport[data-animation="slide"] [data-sliding="loop"] li {
+.tiny-viewport[data-animation="slide"] [data-cycle] li {
+  display: none;
   float: right;
 }
 
-.tiny-viewport[data-animation="slide"] li {
-  position: relative;
-  float: left;
+.tiny-viewport[data-animation="slide"] [data-cycle] li.tiny-slide-active {
+  display: block;
 }
 
 .tiny-viewport li {
