@@ -1,3 +1,5 @@
+/* necessery */
+
 .tiny-container {
   max-width: 960px;
 }
@@ -5,16 +7,35 @@
 .tiny-viewport {
   position: relative;
   width: 100%;
+  overflow: hidden;
+}
+
+.tiny-viewport ul {
   padding: 0;
   margin: 0;
-  overflow: hidden;
   list-style: none;
 }
 
 .tiny-viewport[data-animation="fade"] li {
   position: relative;
   float: left;
-  margin-right: -100%;
+}
+
+.tiny-viewport[data-animation="slide"] [data-sliding] {
+  width: 200%;
+}
+
+.tiny-viewport[data-animation="slide"] [data-sliding] li {
+  width: 50%;
+}
+
+.tiny-viewport[data-animation="slide"] [data-sliding="loop"] li {
+  float: right;
+}
+
+.tiny-viewport[data-animation="slide"] li {
+  position: relative;
+  float: left;
 }
 
 .tiny-viewport li {

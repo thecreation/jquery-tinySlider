@@ -26,8 +26,9 @@
         this.classes.activePager = this.options.namespace + '-pager-active';
 
         this.$element.addClass(namespace + '-container');
-        this.$viewport = this.$element.children('ul').addClass(namespace + '-viewport');
-        this.$slides = this.$viewport.children();
+        this.$ul = this.$element.children('ul');
+        this.$viewport = this.$ul.wrap('<div class="' + namespace + '-viewport" />').parent();
+        this.$slides = this.$ul.children();
 
         var self = this;
         $.extend(self, {
@@ -44,12 +45,23 @@
                     self.$slides.sort(function() {
                         return (Math.round(Math.random()) - 0.5);
                     });
-                    self.$viewport.empty().append(self.$slides);
+                    self.$ul.empty().append(self.$slides);
                 }
 
-                // Add animation attr for css styling
+                // Set up animation
+                self.animations[self.options.animation].setup();
                 self.$viewport.attr('data-animation', self.options.animation);
-                self.$viewport.on('go', self.animations[self.options.animation]);
+                self.$viewport.on('go', function(e, data) {
+                    e.stopPropagation();
+
+                    self.$viewport.trigger('animation_start', {
+                        current: self.current,
+                        index: data.index
+                    });
+
+                    self.animations[self.options.animation].run(data);
+                });
+
 
                 // Active the first slide
                 self.current = 0;
@@ -57,10 +69,31 @@
                 self.sliding = false;
                 self.active(self.current);
 
+                // Fire start event
+                self.options.start.call(self);
+
                 // Auto start
                 if (self.options.autoplay) {
                     self.autoplay.enabled = true;
                     self.autoplay.start();
+                }
+
+                // Pause When hover the viewport
+                if (self.options.pauseOnHover) {
+                    self.$viewport.hover(function() {
+                        if (self.autoplay.enabled) {
+                            self.pause();
+                        }
+                    }, function() {
+                        if (self.autoplay.enabled) {
+                            self.play();
+                        }
+                    });
+                }
+
+                // Touch
+                if (self.options.touch) {
+                    self.touch.setup();
                 }
 
                 // Bind logic
@@ -68,6 +101,9 @@
                     e.stopPropagation();
 
                     self.sliding = true;
+
+                    // Fire before event
+                    self.options.before.call(self);
                 });
 
                 self.$viewport.on('animation_end', function(e, data) {
@@ -76,6 +112,9 @@
                     self.sliding = false;
                     self.current = data.index;
                     self.active(data.index);
+
+                    // Fire after event
+                    self.options.after.call(self);
 
                     if (self.wait) {
                         self.goTo(self.wait);
@@ -88,7 +127,7 @@
                 enabled: false,
                 timeout: null,
                 start: function() {
-                    if(self.autoplay.timeout){
+                    if (self.autoplay.timeout) {
                         clearTimeout(self.autoplay.timeout);
                     }
                     self.autoplay.timeout = setTimeout(function() {
@@ -134,33 +173,109 @@
                     self.$nav = $('<div class="' + namespace + '-nav">' + '<a href="#" class="' + namespace + '-nav-prev">' + self.options.prevText + '</a>' + '<a href="#" class="' + namespace + '-nav-next">' + self.options.nextText + '</a>' + '</div>');
 
                     self.$nav.appendTo(self.$element);
-
                     self.$nav.delegate('a', "click", function() {
-                        if ($(this).is(namespace + '-nav-prev')) {
-                            self.next();
-                        } else {
+                        if ($(this).is('.' + namespace + '-nav-prev')) {
                             self.prev();
+                        } else {
+                            self.next();
                         }
                     });
                 }
             },
             animations: {
-                fade: function(e, data) {
-                    e.stopPropagation();
-
-                    self.$viewport.trigger('animation_start', {
-                        current: self.current,
-                        index: data.index
-                    });
-                    self.$slides.eq(self.current).fadeOut(self.options.duration, self.options.easing);
-                    self.$slides.eq(data.index).fadeIn(self.options.duration, self.options.easing, function() {
-                        self.$viewport.trigger('animation_end', {
-                            index: data.index
+                fade: {
+                    setup: function() {},
+                    run: function(data) {
+                        self.$slides.eq(self.current).fadeOut(self.options.duration, self.options.easing);
+                        self.$slides.eq(data.index).fadeIn(self.options.duration, self.options.easing, function() {
+                            self.$viewport.trigger('animation_end', {
+                                index: data.index
+                            });
                         });
-                    });
+                    }
                 },
-                slide: function() {
+                slide: {
+                    setup: function() {},
+                    run: function(data) {
+                        var direction, sliding = 'true';
+                        if (data.index > self.current) {
+                            direction = 'next';
+                        } else {
+                            direction = 'prev';
+                        }
+                        if (data.index === 0 && self.current === self.$slides.length - 1) {
+                            direction = 'next';
+                            sliding = 'loop';
+                        } else if (self.current === 0 && data.index === self.$slides.length - 1) {
+                            direction = 'prev';
+                            sliding = 'loop';
+                        }
 
+                        var from = self.$slides.eq(self.current),
+                            to = self.$slides.eq(data.index);
+                        self.$ul.attr('data-sliding', sliding);
+                        to.show();
+                        if (direction === 'next') {
+                            self.$ul.animate({
+                                marginLeft: '-100%'
+                            }, self.options.duration, self.options.easing, function() {
+                                self.$ul.css({
+                                    marginLeft: ''
+                                });
+                                from.hide();
+                                self.$ul.attr('data-sliding', null);
+                                self.$viewport.trigger('animation_end', {
+                                    index: data.index
+                                });
+                            });
+                        } else {
+                            self.$ul.css({
+                                marginLeft: '-100%'
+                            }).animate({
+                                marginLeft: 0
+                            }, self.options.duration, self.options.easing, function() {
+                                from.hide();
+                                self.$ul.attr('data-sliding', null);
+                                self.$viewport.trigger('animation_end', {
+                                    index: data.index
+                                });
+                            });
+                        }
+                    }
+                }
+            },
+            touch: {
+                setup: function() {
+                    if (!(("ontouchstart" in window) || window.DocumentTouch && document instanceof DocumentTouch)) {
+                        return;
+                    }
+
+                    self.$viewport.on('touchstart', function(e) {
+                        if (self.sliding) {
+                            e.preventDefault();
+                        }
+
+                        var touch = e.originalEvent.touches ? e.originalEvent.touches[0] : e;
+                        var startX = touch.pageX;
+
+                        self.$viewport.on('touchmove', function(e) {
+                            e.preventDefault();
+
+                            touch = e.originalEvent.touches ? e.originalEvent.touches[0] : e;
+
+                            if (touch.pageX - startX > 75) {
+                                self.$viewport.off('touchmove');
+                                self.prev();
+                            } else if (touch.pageX - startX < -75) {
+                                self.$viewport.off('touchmove');
+                                self.next();
+                            }
+                        }).on('touchend', function() {
+                            self.$viewport.off('touchmove');
+                        });
+
+                        return false;
+                    });
                 }
             }
         });
@@ -184,19 +299,17 @@
         nextText: "Next", // String: Text for the "next" button
 
         random: false, // Boolean: Randomize the order of the slides, true or false
-        autoplay: true, // Boolean: Animate automatically, true or false
+        autoplay: false, // Boolean: Animate automatically, true or false
         pauseOnHover: true, // Boolean: Pause the slideshow when hovering over slider
 
-        useCSS: true,
+        /*useCSS: true,*/
         touch: true,
 
         // Callback API
         start: function() {}, // Callback: function(slider) - Fires when the slider loads the first slide
         before: function() {}, // Callback: function(slider) - Fires asynchronously with each slider animation
         after: function() {}, // Callback: function(slider) - Fires after each slider animation completes
-        end: function() {}, // Callback: function(slider) - Fires when the slider reaches the last slide (asynchronous)
-        added: function() {}, // Callback: function(slider) - Fires after a slide is added
-        removed: function() {} // Callback: function(slider) - Fires after a slide is removed
+        end: function() {} // Callback: function(slider) - Fires when the slider reaches the last slide (asynchronous)
     };
 
     TinySlider.prototype = {
@@ -227,23 +340,19 @@
             this.goTo(next);
         },
         goTo: function(index) {
-            if(this.sliding){
-                self.wait = index;
-            }else{
-                self.wait = null;
+            if (this.current === index) {
+                return false;
+            }
+            if (this.sliding) {
+                this.wait = index;
+            } else {
+                this.wait = null;
                 this.$viewport.trigger('go', {
                     index: index
                 });
             }
-        },
-        update: function() {
-
-        },
-        destroy: function() {
-
         }
     };
-
 
     // Collection method.
     $.fn.tinySlider = function(options) {

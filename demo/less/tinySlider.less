@@ -1,18 +1,39 @@
+/* necessery */
 .tiny-container {
   max-width: 960px;
 }
 .tiny-viewport {
   position: relative;
-  list-style: none;
   overflow: hidden;
   width: 100%;
-  padding: 0;
-  margin: 0;
+  
+  ul {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
 
   &[data-animation="fade"]{
     li {
       position: relative;
-      margin-right: -100%;
+      float: left;
+    }
+  }
+
+  &[data-animation="slide"]{
+    [data-sliding]{
+      width: 200%;
+      li {
+        width: 50%;
+      }
+    }
+    [data-sliding="loop"]{
+      li {
+        float: right;
+      }
+    }
+    li {
+      position: relative;
       float: left;
     }
   }
