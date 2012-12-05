@@ -200,6 +200,11 @@
                         var width = self.$viewport.width();
                         self.$slides.width(width);
                         self.$ul.width(100 * self.$slides.length + '%');
+                        
+                        $(window).on('resize',function(){
+                            var width = self.$viewport.width();
+                            self.$slides.width(width);
+                        });
                     },
                     run: function(data) {
                         if (!self.cycle) {
