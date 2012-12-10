@@ -18,6 +18,7 @@
 
 .tiny-viewport[data-animation="fade"] li {
   position: relative;
+  margin-right: -100%;
   float: left;
 }
 

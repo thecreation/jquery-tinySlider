@@ -304,13 +304,13 @@
         duration: 1000, // Integer: Duration of the transition, in milliseconds
         delay: 4000, // Integer: Time between slide transitions, in milliseconds
 
-        pager: false, // Boolean: Show pager, true or false
-        nav: false, // Boolean: Show navigation, true or false
+        pager: true, // Boolean: Show pager, true or false
+        nav: true, // Boolean: Show navigation, true or false
         prevText: "Previous", // String: Text for the "previous" button
         nextText: "Next", // String: Text for the "next" button
 
         random: false, // Boolean: Randomize the order of the slides, true or false
-        autoplay: false, // Boolean: Animate automatically, true or false
+        autoplay: true, // Boolean: Animate automatically, true or false
         pauseOnHover: true, // Boolean: Pause the slideshow when hovering over slider
 
         /*useCSS: true,*/
