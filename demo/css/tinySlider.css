@@ -39,6 +39,8 @@
 .tiny-viewport li {
   display: none;
   width: 100%;
+  padding: 0;
+  margin: 0;
 }
 
 .tiny-viewport li.tiny-slide-active {

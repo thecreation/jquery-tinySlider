@@ -1,4 +1,4 @@
-/*! TinySlider - v0.1.0 - 2012-12-05
+/*! TinySlider - v0.1.0 - 2012-12-09
 * https://github.com/KaptinLin/tinySlider
 * Copyright (c) 2012 KaptinLin; Licensed GPL */
 
@@ -204,6 +204,11 @@
                         var width = self.$viewport.width();
                         self.$slides.width(width);
                         self.$ul.width(100 * self.$slides.length + '%');
+                        
+                        $(window).on('resize',function(){
+                            var width = self.$viewport.width();
+                            self.$slides.width(width);
+                        });
                     },
                     run: function(data) {
                         if (!self.cycle) {
@@ -234,7 +239,7 @@
                                         index: data.index
                                     });
                                 });
-                            }else{
+                            } else {
                                 self.$ul.css('marginLeft', '0').animate({
                                     marginLeft: '-100%'
                                 }, self.options.duration, self.options.easing, function() {
