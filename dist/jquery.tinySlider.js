@@ -1,4 +1,4 @@
-/*! TinySlider - v0.1.0 - 2012-12-10
+/*! TinySlider - v0.2.0 - 2012-12-13
 * https://github.com/KaptinLin/tinySlider
 * Copyright (c) 2012 KaptinLin; Licensed GPL */
 
@@ -73,6 +73,7 @@
                 self.cycle = false;
                 self.sliding = false;
                 self.active(self.current);
+                /* todo:  pager is not actived */
 
                 // Fire start event
                 self.options.start.call(self);
@@ -108,7 +109,7 @@
                     self.sliding = true;
 
                     // Fire before event
-                    self.options.before.call(self);
+                    self.options.before.call(self, data.index);
                 });
 
                 self.$viewport.on('animation_end', function(e, data) {
@@ -119,7 +120,7 @@
                     self.active(data.index);
 
                     // Fire after event
-                    self.options.after.call(self);
+                    self.options.after.call(self, data.index);
 
                     if (self.wait) {
                         self.goTo(self.wait);
@@ -127,6 +128,13 @@
                         self.autoplay.start();
                     }
                 });
+
+                // Fire resize event
+                if ($.isFunction(self.options.resize)) {
+                    $(window).on('resize', function() {
+                        self.options.resize.call(self);
+                    });
+                }
             },
             autoplay: {
                 enabled: false,
@@ -167,6 +175,7 @@
                     });
                     self.$pager.delegate('li', "click", function() {
                         self.goTo($(this).index());
+                        return false;
                     });
                 },
                 active: function(i) {
@@ -184,6 +193,7 @@
                         } else {
                             self.next();
                         }
+                        return false;
                     });
                 }
             },
@@ -308,6 +318,7 @@
         duration: 1000, // Integer: Duration of the transition, in milliseconds
         delay: 4000, // Integer: Time between slide transitions, in milliseconds
 
+        direction: 'ltr', // String: Direction, rtl or ltr
         pager: true, // Boolean: Show pager, true or false
         nav: true, // Boolean: Show navigation, true or false
         prevText: "Previous", // String: Text for the "previous" button
@@ -359,8 +370,11 @@
             this.goTo(prev);
         },
         go: function() {
-            var next = this.current + 1 >= this.$slides.length ? 0 : this.current + 1;
-            this.goTo(next);
+            if (this.options.direction === 'ltr') {
+                this.next();
+            } else {
+                this.prev();
+            }
         },
         goTo: function(index) {
             if (this.current === index) {
@@ -374,7 +388,8 @@
                     index: index
                 });
             }
-        }
+        },
+        resize: null
     };
 
     // Collection method.
