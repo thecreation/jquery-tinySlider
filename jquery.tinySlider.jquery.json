@@ -1,0 +1,28 @@
+{
+  "name": "jquery.tinySlider",
+  "title": "TinySlider",
+  "description": "tinySlider.js is a tiny jQuery plugin that creates a responsive slider with touch support.",
+  "version": "0.2.1",
+  "homepage": "https://github.com/KaptinLin/tinySlider",
+  "author": {
+    "name": "KaptinLin",
+    "email": "Kaptinlin@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:KaptinLin/tinySlider.git"
+  },
+  "bugs": {
+    "url": "https://github.com/KaptinLin/tinySlider/issues"
+  },
+  "licenses": [
+    {
+      "type": "GPL",
+      "url": "https://github.com/KaptinLin/tinySlider/blob/master/LICENSE-GPL"
+    }
+  ],
+  "dependencies": {
+    "jquery": ">= 1.6"
+  },
+  "keywords": []
+}

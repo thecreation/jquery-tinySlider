@@ -1,7 +1,6 @@
-/*! TinySlider - v0.2.0 - 2012-12-13
+/*! TinySlider - v0.2.1 - 2013-07-21
 * https://github.com/KaptinLin/tinySlider
-* Copyright (c) 2012 KaptinLin; Licensed GPL */
-
+* Copyright (c) 2013 KaptinLin; Licensed GPL */
 (function(window, document, $, undefined) {
     "use strict";
 
@@ -73,7 +72,6 @@
                 self.cycle = false;
                 self.sliding = false;
                 self.active(self.current);
-                /* todo:  pager is not actived */
 
                 // Fire start event
                 self.options.start.call(self);
@@ -109,7 +107,7 @@
                     self.sliding = true;
 
                     // Fire before event
-                    self.options.before.call(self, data.index);
+                    self.options.before.call(self, data);
                 });
 
                 self.$viewport.on('animation_end', function(e, data) {
@@ -120,7 +118,7 @@
                     self.active(data.index);
 
                     // Fire after event
-                    self.options.after.call(self, data.index);
+                    self.options.after.call(self, data);
 
                     if (self.wait) {
                         self.goTo(self.wait);
@@ -128,13 +126,6 @@
                         self.autoplay.start();
                     }
                 });
-
-                // Fire resize event
-                if ($.isFunction(self.options.resize)) {
-                    $(window).on('resize', function() {
-                        self.options.resize.call(self);
-                    });
-                }
             },
             autoplay: {
                 enabled: false,
@@ -184,7 +175,8 @@
             },
             nav: {
                 setup: function() {
-                    self.$nav = $('<div class="' + namespace + '-nav">' + '<a href="#" class="' + namespace + '-nav-prev">' + self.options.prevText + '</a>' + '<a href="#" class="' + namespace + '-nav-next">' + self.options.nextText + '</a>' + '</div>');
+                    self.$nav = $('<div class="' + namespace + '-nav">' + '<a href="#" class="' + namespace + '-nav-prev">' + self.options.prevText +
+                        '</a>' + '<a href="#" class="' + namespace + '-nav-next">' + self.options.nextText + '</a>' + '</div>');
 
                     self.$nav.appendTo(self.$element);
                     self.$nav.delegate('a', "click", function() {
@@ -318,7 +310,6 @@
         duration: 1000, // Integer: Duration of the transition, in milliseconds
         delay: 4000, // Integer: Time between slide transitions, in milliseconds
 
-        direction: 'ltr', // String: Direction, rtl or ltr
         pager: true, // Boolean: Show pager, true or false
         nav: true, // Boolean: Show navigation, true or false
         prevText: "Previous", // String: Text for the "previous" button
@@ -370,11 +361,8 @@
             this.goTo(prev);
         },
         go: function() {
-            if (this.options.direction === 'ltr') {
-                this.next();
-            } else {
-                this.prev();
-            }
+            var next = this.current + 1 >= this.$slides.length ? 0 : this.current + 1;
+            this.goTo(next);
         },
         goTo: function(index) {
             if (this.current === index) {
@@ -388,8 +376,7 @@
                     index: index
                 });
             }
-        },
-        resize: null
+        }
     };
 
     // Collection method.
