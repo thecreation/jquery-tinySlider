@@ -5,8 +5,8 @@ tinySlider is a tiny jQuery plugin that creates a responsive slider with touch s
 ## Getting Started
 Download the [production version][min] or the [development version][max].
 
-[min]: https://raw.github.com/KaptinLin/tinySlider/master/dist/jquery.tinySlider.min.js
-[max]: https://raw.github.com/KaptinLin/tinySlider/master/dist/jquery.tinySlider.js
+[min]: https://raw.github.com/amazingSurge/jquery-tinySlider/master/dist/jquery.tinySlider.min.js
+[max]: https://raw.github.com/amazingSurge/jquery-tinySlider/master/dist/jquery.tinySlider.js
 
 In your web page:
 
@@ -30,7 +30,7 @@ _(Coming soon)_
 _(Nothing yet)_
 
 ## License
-Copyright (c) 2012 KaptinLin  
+Copyright (c) 2013 AmazingSurge  
 Licensed under the GPL license.
 
 ## Contributing
