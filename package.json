@@ -6,7 +6,8 @@
   "homepage": "https://github.com/amazingSurge/jquery-tinySlider",
   "author": {
     "name": "amazingSurge",
-    "email": "Kaptinlin@gmail.com"
+    "email": "amazingSurge@yahoo.com",
+    "url": "amazingSurge.com"
   },
   "repository": {
     "type": "git",
@@ -30,7 +31,7 @@
     "grunt-contrib-uglify": "~0.1.2",
     "grunt-contrib-watch": "~0.3.1",
     "grunt-contrib-clean": "~0.4.0",
-    "grunt-jsbeautifier": "~0.1.8",
+    "grunt-jsbeautifier": "~0.1.9",
     "grunt": "~0.4.1",
     "grunt-text-replace": "~0.3.6"
   },
