@@ -1,0 +1,38 @@
+{
+  "name": "jquery-tinyslider",
+  "title": "jQuery TinySlider",
+  "description": "tinySlider is a tiny jQuery plugin that creates a responsive slider with touch support",
+  "version": "0.2.2",
+  "homepage": "https://github.com/amazingSurge/jquery-tinySlider",
+  "author": {
+    "name": "amazingSurge",
+    "email": "Kaptinlin@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:amazingSurge/jquery-tinySlider.git"
+  },
+  "bugs": {
+    "url": "https://github.com/amazingSurge/jquery-tinySlider/issues"
+  },
+  "licenses": [
+    {
+      "type": "GPL",
+      "url": "https://github.com/amazingSurge/jquery-tinySlider/blob/master/LICENSE-GPL"
+    }
+  ],
+  "dependencies": {
+    "jquery": ">=1.8.3"
+  },
+  "devDependencies": {
+    "grunt-contrib-jshint": "~0.2.0",
+    "grunt-contrib-concat": "~0.1.2",
+    "grunt-contrib-uglify": "~0.1.2",
+    "grunt-contrib-watch": "~0.3.1",
+    "grunt-contrib-clean": "~0.4.0",
+    "grunt-jsbeautifier": "~0.1.8",
+    "grunt": "~0.4.1",
+    "grunt-text-replace": "~0.3.6"
+  },
+  "keywords": []
+}

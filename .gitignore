@@ -1,6 +1,4 @@
 # ignore all grunt related directories and files.
-grunt.js
-package.json
 node_modules/**/*
 bower_components/
 
