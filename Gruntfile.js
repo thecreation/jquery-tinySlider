@@ -5,12 +5,8 @@ module.exports = function(grunt) {
   // Project configuration.
   grunt.initConfig({
     // Metadata.
-    pkg: grunt.file.readJSON('jquery.tinySlider.jquery.json'),
-    banner: '/*! <%= pkg.title || pkg.name %> - v<%= pkg.version %> - ' +
-      '<%= grunt.template.today("yyyy-mm-dd") %>\n' +
-      '<%= pkg.homepage ? "* " + pkg.homepage + "\\n" : "" %>' +
-      '* Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>;' +
-      ' Licensed <%= _.pluck(pkg.licenses, "type").join(", ") %> */\n',
+    pkg: grunt.file.readJSON('package.json'),
+    banner: '/*! <%= pkg.title || pkg.name %> - v<%= pkg.version %> - ' + '<%= grunt.template.today("yyyy-mm-dd") %>\n' + '<%= pkg.homepage ? "* " + pkg.homepage + "\\n" : "" %>' + '* Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>;' + ' Licensed <%= _.pluck(pkg.licenses, "type").join(", ") %> */\n',
     // Task configuration.
     clean: {
       files: ['dist']
@@ -58,10 +54,28 @@ module.exports = function(grunt) {
         tasks: ['jshint:src']
       },
     },
-    jsbeautifier : {
-      files : ["src/**/*.js"],
-      options : {
-        indent_size: 4,
+    replace: {
+      bower: {
+        src: ['bower.json'],
+        overwrite: true, // overwrite matched source files
+        replacements: [{
+          from: /("version": ")([0-9\.]+)(")/g,
+          to: "$1<%= pkg.version %>$3"
+        }]
+      },
+      jquery: {
+        src: ['tinyslider.jquery.json'],
+        overwrite: true, // overwrite matched source files
+        replacements: [{
+          from: /("version": ")([0-9\.]+)(")/g,
+          to: "$1<%= pkg.version %>$3"
+        }]
+      },
+    },
+    jsbeautifier: {
+      files: ["src/**/*.js", 'Gruntfile.js'],
+      options: {
+        indent_size: 2,
         indent_char: " ",
         indent_level: 0,
         indent_with_tabs: false,
@@ -86,10 +100,16 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-text-replace');
   grunt.loadNpmTasks('grunt-jsbeautifier');
 
   // Default task.
   grunt.registerTask('default', ['jshint', 'jsbeautifier', 'clean', 'concat', 'uglify']);
 
   grunt.registerTask('js', ['jsbeautifier']);
+
+  grunt.registerTask('version', [
+    'replace:bower',
+    'replace:jquery'
+  ]);
 };

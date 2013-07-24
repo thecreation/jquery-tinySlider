@@ -2,6 +2,7 @@
 grunt.js
 package.json
 node_modules/**/*
+bower_components/
 
 # Numerous always-ignore extensions
 *.diff

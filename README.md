@@ -5,14 +5,14 @@ tinySlider is a tiny jQuery plugin that creates a responsive slider with touch s
 ## Getting Started
 Download the [production version][min] or the [development version][max].
 
-[min]: https://raw.github.com/amazingSurge/jquery-tinySlider/master/dist/jquery.tinySlider.min.js
-[max]: https://raw.github.com/amazingSurge/jquery-tinySlider/master/dist/jquery.tinySlider.js
+[min]: https://raw.github.com/amazingSurge/jquery-tinySlider/master/dist/jquery-tinyslider.min.js
+[max]: https://raw.github.com/amazingSurge/jquery-tinySlider/master/dist/jquery-tinyslider.js
 
 In your web page:
 
 ```html
 <script src="jquery.js"></script>
-<script src="dist/jquery.tinySlider.min.js"></script>
+<script src="dist/jquery-tinyslider.min.js"></script>
 <script>
 jQuery(function($) {
   $('ul.slider').tinySlider();
