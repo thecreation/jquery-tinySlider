@@ -24,11 +24,16 @@
 		this.classes = {};
 		this.classes.activeSlide = namespace + '-slide-active';
 		this.classes.activePager = namespace + '-pager-active';
+		this.classes.noTransition = namespace + '-noTransition';
 
 		this.$element.addClass(namespace + '-container');
 		this.$ul = this.$element.children('ul');
 		this.$viewport = this.$ul.wrap('<div class="' + namespace + '-viewport" />').parent();
 		this.$slides = this.$ul.children();
+
+		this.width = this.getWidth();
+		this.isMoving = false;
+		this.slides = this.$slides.length;
 
 		var self = this;
 		$.extend(self, {
@@ -38,6 +43,16 @@
 				}
 				if (self.options.nav) {
 					this.nav.setup();
+				}
+
+				// Touch
+				// touch force some settings
+				if (self.options.touch) {
+					self.options.animation = 'slide';
+					self.options.pauseOnHover = false;
+					self.options.autoplay = false;
+					self.cycle = false;
+					self.touch.setup();
 				}
 
 				// Random order
@@ -71,7 +86,10 @@
 				self.active(self.current);
 
 				// Fire start event
-				self.options.start.call(self);
+				if (typeof self.options.onStart === 'function') {
+					self.options.onStart.call(self);
+				}
+				
 
 				// Auto start
 				if (self.options.autoplay) {
@@ -92,11 +110,6 @@
 					});
 				}
 
-				// Touch
-				if (self.options.touch) {
-					self.touch.setup();
-				}
-
 				// Bind logic
 				self.$viewport.on('animation_start', function(e, data) {
 					e.stopPropagation();
@@ -104,7 +117,9 @@
 					self.sliding = true;
 
 					// Fire before event
-					self.options.before.call(self, data);
+					if (typeof self.options.onBefore === 'function') {
+						self.options.onBefore.call(self, data);
+					}
 				});
 
 				self.$viewport.on('animation_end', function(e, data) {
@@ -115,7 +130,9 @@
 					self.active(data.index);
 
 					// Fire after event
-					self.options.after.call(self, data);
+					if (typeof self.options.onAfter === 'function') {
+						self.options.onAfter.call(self, data);
+					}
 
 					if (self.wait) {
 						self.goTo(self.wait);
@@ -200,10 +217,9 @@
 				},
 				slide: {
 					setup: function() {
-						var width = self.$viewport.width();
-						self.$slides.width(width);
-						self.$ul.width(100 * self.$slides.length + '%');
-
+						var length = self.$slides.length;
+						self.$ul.width(100 * length + '%');
+						self.$slides.width(100 / length + '%');
 						$(window).on('resize', function() {
 							var width = self.$viewport.width();
 							self.$slides.width(width);
@@ -259,39 +275,89 @@
 				}
 			},
 			touch: {
+				eventStartType: null,
+				eventMoveType: null,
+				eventEndType: null,
+				isSupport: function() {
+					return ("ontouchstart" in window) || window.DocumentTouch && document instanceof DocumentTouch;
+				},
 				setup: function() {
-					if (!(("ontouchstart" in window) || window.DocumentTouch && document instanceof DocumentTouch)) {
-						return;
+					// if (!this.isSupport()) {
+					// 	return;
+					// }
+					this.getEventType();
+					self.$viewport.on(this.eventStartType, $.proxy(this.eventStart, this));
+					self.$viewport.on('animation_end', function() {
+						self.isMoving = false;
+					});
+				},
+				getEventType: function() {
+					var touch = this.isSupport();
+					this.eventStartType = touch? 'touchstart': 'mousedown';
+					this.eventMoveType = touch? 'touchmove': 'mousemove';
+					this.eventEndType = touch? 'touchend': 'mouseup';
+				},
+				getEventObject: function(event) {
+					var e = event.originalEvent;
+					if (self.touch.supported) {
+						e = e.touches[0];
+					}
+					return e;
+				},
+				calculate: function() {
+					var value = Math.round(this.posValue/100);
+					if (value <= 1 - self.slides) {
+						value = self.slides - 1;
+					} else if (value >= 0) {
+						value = 0;
+					}
+					return Math.abs(value);
+				},
+				move: function(value) {
+					var value = Math.round(value*100)/100,
+						posValue = this.posValue = -100 * self.current + value;
+					// cancel css3 transition
+					this.cancelTransition();
+					self.$ul.css({
+						marginLeft: posValue + '%'
+					});
+				},
+				eventStart: function(event) {
+					var width = self.getWidth(),
+						event = this.getEventObject(event);
+					this.data = {};
+					this.data.start = event.pageX;
+
+					if (self.isMoving) {
+						return false;
 					}
 
-					self.$viewport.on('touchstart', function(e) {
-						if (self.sliding) {
-							e.preventDefault();
-						}
-
-						var touch = e.originalEvent.touches ? e.originalEvent.touches[0] : e;
-						var startX = touch.pageX;
-
-						self.$viewport.on('touchmove', function(e) {
-							e.preventDefault();
-
-							touch = e.originalEvent.touches ? e.originalEvent.touches[0] : e;
-
-							if (touch.pageX - startX > 75) {
-								self.$viewport.off('touchmove');
-								self.prev();
-							} else if (touch.pageX - startX < -75) {
-								self.$viewport.off('touchmove');
-								self.next();
-							}
-						}).on('touchend', function() {
-							self.$viewport.off('touchmove');
-						});
-
+					this.eventMove = function(event) {
+						var event = this.getEventObject(event),
+							value = (event.pageX || this.data.start) - this.data.start,
+							percent = value / width * 100;
+						this.move(percent);
+						event.preventDefault();
 						return false;
-					});
+					};
+					this.eventEnd = function(event) {
+						var index = this.calculate();
+						self.isMoving = true;
+						this.addTransition();
+						self.moveTo(index);
+						$(document).off(this.eventMoveType).off(this.eventEndType);
+						return false;
+					};
+					$(document).on(this.eventMoveType, $.proxy(this.eventMove, this)).on(this.eventEndType, $.proxy(this.eventEnd, this));
+					return false;
+				},
+				cancelTransition: function() {
+					self.$element.addClass(self.classes.noTransition);
+				},
+				addTransition: function() {
+					self.$element.removeClass(self.classes.noTransition);
 				}
-			}
+			}			
 		});
 
 		self.init();
@@ -304,7 +370,7 @@
 
 		animation: "fade", // String: Select your animation type, "fade" or "slide"
 		easing: "swing",
-		duration: 1000, // Integer: Duration of the transition, in milliseconds
+		duration: 400, // Integer: Duration of the transition, in milliseconds
 		delay: 4000, // Integer: Time between slide transitions, in milliseconds
 
 		pager: true, // Boolean: Show pager, true or false
@@ -320,10 +386,10 @@
 		touch: true,
 
 		// Callback API
-		start: function() {}, // Callback: function(slider) - Fires when the slider loads the first slide
-		before: function() {}, // Callback: function(slider) - Fires asynchronously with each slider animation
-		after: function() {}, // Callback: function(slider) - Fires after each slider animation completes
-		end: function() {} // Callback: function(slider) - Fires when the slider reaches the last slide (asynchronous)
+		onStart: function() {}, // Callback: function(slider) - Fires when the slider loads the first slide
+		onBefore: function() {}, // Callback: function(slider) - Fires asynchronously with each slider animation
+		onAfter: function() {}, // Callback: function(slider) - Fires after each slider animation completes
+		onEnd: function() {} // Callback: function(slider) - Fires when the slider reaches the last slide (asynchronous)
 	};
 
 	TinySlider.prototype = {
@@ -372,6 +438,19 @@
 				this.$viewport.trigger('go', {
 					index: index
 				});
+			}
+		},
+		moveTo: function(index) {
+			this.$viewport.trigger('go', {
+				index: index
+			});
+		},
+		getWidth: function() {
+			// for display:none can't get width
+			if (this.width === undefined ||  0===parseInt(this.width,10)) {
+				return this.$element.width();
+			} else {
+				return this.width;
 			}
 		}
 	};

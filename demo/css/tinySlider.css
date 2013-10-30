@@ -2,17 +2,22 @@
 
 .tiny-container {
   max-width: 960px;
+  width: 50%;
+  height: 400px;
+  margin: 0 auto;
 }
 
 .tiny-viewport {
   position: relative;
   width: 100%;
+  height: 100%;
   overflow: hidden;
 }
 
 .tiny-viewport ul {
   padding: 0;
   margin: 0;
+  overflow: hidden;
   list-style: none;
 }
 
@@ -39,7 +44,7 @@
 
 .tiny-viewport li {
   display: none;
-  width: 100%;
+  height: 100%;
   padding: 0;
   margin: 0;
 }
