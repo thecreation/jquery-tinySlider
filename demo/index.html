@@ -21,6 +21,13 @@
 <script src="js/main.js"></script>
 <script src="js/rainbow.min.js"></script>
 
+<style type="text/css">
+	.fade {
+		width: 100%;
+		height: 500px;
+	}
+</style>
+
 </head>
 <body>
 <!--[if lt IE 7]>
@@ -50,6 +57,7 @@
 		</li>
 	</ul>
 </div>
+
 <div id="content"></div>
 
 <script type="text/javascript">
@@ -59,10 +67,11 @@ $(document).ready( function() {
 		nav: true,
 		random: true,
 		pauseOnHover: true,
-		touch: true,
+		touch: false,
 		autoplay:false,
-		animation: 'slide'
+		animation: 'fade'
 	});
+	
 });
 </script>
 </body>

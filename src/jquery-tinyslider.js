@@ -205,7 +205,9 @@
 			},
 			animations: {
 				fade: {
-					setup: function() {},
+					setup: function() {
+						
+					},
 					run: function(data) {
 						self.$slides.eq(self.current).fadeOut(self.options.duration, self.options.easing);
 						self.$slides.eq(data.index).fadeIn(self.options.duration, self.options.easing, function() {
@@ -285,13 +287,13 @@
 					// if (!this.isSupport()) {
 					// 	return;
 					// }
-					this.getEventType();
+					this.setEventType();
 					self.$viewport.on(this.eventStartType, $.proxy(this.eventStart, this));
 					self.$viewport.on('animation_end', function() {
 						self.isMoving = false;
 					});
 				},
-				getEventType: function() {
+				setEventType: function() {
 					var touch = this.isSupport();
 					this.eventStartType = touch? 'touchstart': 'mousedown';
 					this.eventMoveType = touch? 'touchmove': 'mousemove';
@@ -357,6 +359,9 @@
 				addTransition: function() {
 					self.$element.removeClass(self.classes.noTransition);
 				}
+			},
+			css3Transition: {
+				support: '',
 			}			
 		});
 
@@ -411,7 +416,7 @@
 			var next = this.current + 1;
 			if (next >= this.$slides.length) {
 				next = 0;
-				this.cycle = 'next';
+				//this.cycle = 'next';
 			}
 			this.goTo(next);
 		},
@@ -419,7 +424,7 @@
 			var prev = this.current - 1;
 			if (prev < 0) {
 				prev = this.$slides.length - 1;
-				this.cycle = 'prev';
+				//this.cycle = 'prev';
 			}
 			this.goTo(prev);
 		},
