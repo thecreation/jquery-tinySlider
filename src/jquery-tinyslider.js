@@ -62,7 +62,6 @@
 					self.animations[self.options.animation].run(data);
 				});
 
-
 				// Active the first slide
 				self.current = 0;
 				self.wait = null;
@@ -74,7 +73,6 @@
 				if (typeof self.options.onStart === 'function') {
 					self.options.onStart.call(self);
 				}
-
 
 				// Auto start
 				if (self.options.autoplay) {
@@ -95,7 +93,7 @@
 					});
 				}
 
-				// Touch
+				// Touch support
 				if (self.options.touch) {
 					self.touch.setup();
 				}
@@ -218,7 +216,7 @@
 					},
 					run: function(data) {
 						var duration = self.options.duration;
-						if (data.move) {
+						if (data.jump) {
 							duration = duration / 2;
 						}
 						if (!self.cycle) {
@@ -352,7 +350,7 @@
 						index = self.$slides.length - 1;
 					}
 
-					self.moveTo(index);
+					self.jumpTo(index);
 
 					return false;
 				}
@@ -386,10 +384,10 @@
 		touchSensitivity: 0.25,
 
 		// Callback API
-		onStart: function() {}, // Callback: function(slider) - Fires when the slider loads the first slide
-		onBefore: function() {}, // Callback: function(slider) - Fires asynchronously with each slider animation
-		onAfter: function() {}, // Callback: function(slider) - Fires after each slider animation completes
-		onEnd: function() {} // Callback: function(slider) - Fires when the slider reaches the last slide (asynchronous)
+		onStart: null, // Callback: function(slider) - Fires when the slider loads the first slide
+		onBefore: null, // Callback: function(slider) - Fires asynchronously with each slider animation
+		onAfter: null, // Callback: function(slider) - Fires after each slider animation completes
+		onEnd: null // Callback: function(slider) - Fires when the slider reaches the last slide (asynchronous)
 	};
 
 	TinySlider.prototype = {
@@ -440,10 +438,10 @@
 				});
 			}
 		},
-		moveTo: function(index) {
+		jumpTo: function(index) {
 			this.$viewport.trigger('go', {
 				index: index,
-				move: true
+				jump: true
 			});
 		}
 	};
