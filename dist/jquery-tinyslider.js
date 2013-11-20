@@ -319,11 +319,11 @@
 
 					if (self.options.animation === 'fade') {
 						if (this.data.distance / this.width > self.options.touchSensitivity) {
-							self.prev();
+							self.next();
 
 							$(document).off(this.eventMoveType);
 						} else if (this.data.distance / this.width < -self.options.touchSensitivity) {
-							self.next();
+							self.prev();
 
 							$(document).off(this.eventMoveType);
 						}
