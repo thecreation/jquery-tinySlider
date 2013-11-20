@@ -22,18 +22,13 @@
 
 		// Class
 		this.classes = {};
-		this.classes.activeSlide = namespace + '-slide-active';
-		this.classes.activePager = namespace + '-pager-active';
-		this.classes.noTransition = namespace + '-noTransition';
+		this.classes.activeSlide = namespace + '-slide_active';
+		this.classes.activePager = namespace + '-pager_active';
 
 		this.$element.addClass(namespace + '-container');
 		this.$ul = this.$element.children('ul');
 		this.$viewport = this.$ul.wrap('<div class="' + namespace + '-viewport" />').parent();
 		this.$slides = this.$ul.children();
-
-		this.width = this.getWidth();
-		this.isMoving = false;
-		this.slides = this.$slides.length;
 
 		var self = this;
 		$.extend(self, {
@@ -43,16 +38,6 @@
 				}
 				if (self.options.nav) {
 					this.nav.setup();
-				}
-
-				// Touch
-				// touch force some settings
-				if (self.options.touch) {
-					self.options.animation = 'slide';
-					self.options.pauseOnHover = false;
-					self.options.autoplay = false;
-					self.cycle = false;
-					self.touch.setup();
 				}
 
 				// Random order
@@ -82,14 +67,14 @@
 				self.current = 0;
 				self.wait = null;
 				self.cycle = false;
-				self.sliding = false;
+				self.isSliding = false;
 				self.active(self.current);
 
 				// Fire start event
 				if (typeof self.options.onStart === 'function') {
 					self.options.onStart.call(self);
 				}
-				
+
 
 				// Auto start
 				if (self.options.autoplay) {
@@ -110,11 +95,16 @@
 					});
 				}
 
+				// Touch
+				if (self.options.touch) {
+					self.touch.setup();
+				}
+
 				// Bind logic
 				self.$viewport.on('animation_start', function(e, data) {
 					e.stopPropagation();
 
-					self.sliding = true;
+					self.isSliding = true;
 
 					// Fire before event
 					if (typeof self.options.onBefore === 'function') {
@@ -125,7 +115,7 @@
 				self.$viewport.on('animation_end', function(e, data) {
 					e.stopPropagation();
 
-					self.sliding = false;
+					self.isSliding = false;
 					self.current = data.index;
 					self.active(data.index);
 
@@ -205,9 +195,7 @@
 			},
 			animations: {
 				fade: {
-					setup: function() {
-						
-					},
+					setup: function() {},
 					run: function(data) {
 						self.$slides.eq(self.current).fadeOut(self.options.duration, self.options.easing);
 						self.$slides.eq(data.index).fadeIn(self.options.duration, self.options.easing, function() {
@@ -219,19 +207,24 @@
 				},
 				slide: {
 					setup: function() {
-						var length = self.$slides.length;
-						self.$ul.width(100 * length + '%');
-						self.$slides.width(100 / length + '%');
+						var width = self.$viewport.width();
+						self.$slides.width(width);
+						self.$ul.width(100 * self.$slides.length + '%');
+
 						$(window).on('resize', function() {
 							var width = self.$viewport.width();
 							self.$slides.width(width);
 						});
 					},
 					run: function(data) {
+						var duration = self.options.duration;
+						if (data.move) {
+							duration = duration / 2;
+						}
 						if (!self.cycle) {
 							self.$ul.animate({
 								marginLeft: '-' + data.index * 100 + '%'
-							}, self.options.duration, self.options.easing, function() {
+							}, duration, self.options.easing, function() {
 								self.$viewport.trigger('animation_end', {
 									index: data.index
 								});
@@ -244,7 +237,7 @@
 							if (self.cycle === 'prev') {
 								self.$ul.css('marginLeft', '-100%').animate({
 									marginLeft: null
-								}, self.options.duration, self.options.easing, function() {
+								}, duration, self.options.easing, function() {
 									self.$ul.attr('data-cycle', null);
 									self.$slides.eq(data.index).css('display', null);
 									self.$ul.css({
@@ -259,7 +252,7 @@
 							} else {
 								self.$ul.css('marginLeft', '0').animate({
 									marginLeft: '-100%'
-								}, self.options.duration, self.options.easing, function() {
+								}, duration, self.options.easing, function() {
 									self.$ul.attr('data-cycle', null);
 									self.$slides.eq(data.index).css('display', null);
 									self.$ul.css({
@@ -280,24 +273,17 @@
 				eventStartType: null,
 				eventMoveType: null,
 				eventEndType: null,
-				isSupport: function() {
+				touchSupported: false,
+				isTouchSupport: function() {
 					return ("ontouchstart" in window) || window.DocumentTouch && document instanceof DocumentTouch;
 				},
 				setup: function() {
-					// if (!this.isSupport()) {
-					// 	return;
-					// }
-					this.setEventType();
+					this.touchSupported = this.isTouchSupport();
+					this.eventStartType = this.touchSupported ? 'touchstart' : 'mousedown';
+					this.eventMoveType = this.touchSupported ? 'touchmove' : 'mousemove';
+					this.eventEndType = this.touchSupported ? 'touchend' : 'mouseup';
+
 					self.$viewport.on(this.eventStartType, $.proxy(this.eventStart, this));
-					self.$viewport.on('animation_end', function() {
-						self.isMoving = false;
-					});
-				},
-				setEventType: function() {
-					var touch = this.isSupport();
-					this.eventStartType = touch? 'touchstart': 'mousedown';
-					this.eventMoveType = touch? 'touchmove': 'mousemove';
-					this.eventEndType = touch? 'touchend': 'mouseup';
 				},
 				getEventObject: function(event) {
 					var e = event.originalEvent;
@@ -306,63 +292,71 @@
 					}
 					return e;
 				},
-				calculate: function() {
-					var value = Math.round(this.posValue/100);
-					if (value <= 1 - self.slides) {
-						value = self.slides - 1;
-					} else if (value >= 0) {
-						value = 0;
+				eventStart: function(e) {
+					e.preventDefault();
+
+					if (self.isSliding) {
+						return false;
 					}
-					return Math.abs(value);
-				},
-				move: function(value) {
-					var value = Math.round(value*100)/100,
-						posValue = this.posValue = -100 * self.current + value;
-					// cancel css3 transition
-					this.cancelTransition();
-					self.$ul.css({
-						marginLeft: posValue + '%'
-					});
-				},
-				eventStart: function(event) {
-					var width = self.getWidth(),
-						event = this.getEventObject(event);
+					var event = this.getEventObject(e);
+
 					this.data = {};
 					this.data.start = event.pageX;
+					this.width = self.$viewport.width();
 
-					if (self.isMoving) {
+					$(document).on(this.eventMoveType, $.proxy(this.eventMove, this))
+						.on(this.eventEndType, $.proxy(this.eventEnd, this));
+
+					return false;
+				},
+				eventMove: function(e) {
+					e.preventDefault();
+
+					var event = this.getEventObject(e);
+
+					this.data.distance = (event.pageX || this.data.start) - this.data.start;
+
+					if (self.options.animation === 'fade') {
+						if (this.data.distance / this.width > self.options.touchSensitivity) {
+							self.prev();
+
+							$(document).off(this.eventMoveType);
+						} else if (this.data.distance / this.width < -self.options.touchSensitivity) {
+							self.next();
+
+							$(document).off(this.eventMoveType);
+						}
+					} else {
+						self.$ul.css({
+							marginLeft: -100 * self.current + (this.data.distance / this.width) * 100 + '%'
+						});
+					}
+
+					return false;
+				},
+				eventEnd: function(e) {
+					e.preventDefault();
+
+					$(document).off(this.eventMoveType)
+						.off(this.eventEndType);
+
+					if (self.options.animation === 'fade') {
 						return false;
 					}
 
-					this.eventMove = function(event) {
-						var event = this.getEventObject(event),
-							value = (event.pageX || this.data.start) - this.data.start,
-							percent = value / width * 100;
-						this.move(percent);
-						event.preventDefault();
-						return false;
-					};
-					this.eventEnd = function(event) {
-						var index = this.calculate();
-						self.isMoving = true;
-						this.addTransition();
-						self.moveTo(index);
-						$(document).off(this.eventMoveType).off(this.eventEndType);
-						return false;
-					};
-					$(document).on(this.eventMoveType, $.proxy(this.eventMove, this)).on(this.eventEndType, $.proxy(this.eventEnd, this));
+					var index = self.current - Math.round(this.data.distance / this.width);
+
+					if (index <= 0) {
+						index = 0;
+					} else if (index >= self.$slides.length - 1) {
+						index = self.$slides.length - 1;
+					}
+
+					self.moveTo(index);
+
 					return false;
-				},
-				cancelTransition: function() {
-					self.$element.addClass(self.classes.noTransition);
-				},
-				addTransition: function() {
-					self.$element.removeClass(self.classes.noTransition);
 				}
-			},
-			css3Transition: {
-				support: '',
-			}			
+			}
 		});
 
 		self.init();
@@ -375,7 +369,7 @@
 
 		animation: "fade", // String: Select your animation type, "fade" or "slide"
 		easing: "swing",
-		duration: 400, // Integer: Duration of the transition, in milliseconds
+		duration: 1000, // Integer: Duration of the transition, in milliseconds
 		delay: 4000, // Integer: Time between slide transitions, in milliseconds
 
 		pager: true, // Boolean: Show pager, true or false
@@ -389,6 +383,7 @@
 
 		/*useCSS: true,*/
 		touch: true,
+		touchSensitivity: 0.25,
 
 		// Callback API
 		onStart: function() {}, // Callback: function(slider) - Fires when the slider loads the first slide
@@ -416,7 +411,7 @@
 			var next = this.current + 1;
 			if (next >= this.$slides.length) {
 				next = 0;
-				//this.cycle = 'next';
+				this.cycle = 'next';
 			}
 			this.goTo(next);
 		},
@@ -424,7 +419,7 @@
 			var prev = this.current - 1;
 			if (prev < 0) {
 				prev = this.$slides.length - 1;
-				//this.cycle = 'prev';
+				this.cycle = 'prev';
 			}
 			this.goTo(prev);
 		},
@@ -436,7 +431,7 @@
 			if (this.current === index) {
 				return false;
 			}
-			if (this.sliding) {
+			if (this.isSliding) {
 				this.wait = index;
 			} else {
 				this.wait = null;
@@ -447,16 +442,9 @@
 		},
 		moveTo: function(index) {
 			this.$viewport.trigger('go', {
-				index: index
+				index: index,
+				move: true
 			});
-		},
-		getWidth: function() {
-			// for display:none can't get width
-			if (this.width === undefined ||  0===parseInt(this.width,10)) {
-				return this.$element.width();
-			} else {
-				return this.width;
-			}
 		}
 	};
 

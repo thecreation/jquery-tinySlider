@@ -11,6 +11,7 @@ Download the [production version][min] or the [development version][max].
 In your web page:
 
 ```html
+<link rel="stylesheet" href="css/tinySlider.css">
 <script src="jquery.js"></script>
 <script src="dist/jquery-tinyslider.min.js"></script>
 <script>

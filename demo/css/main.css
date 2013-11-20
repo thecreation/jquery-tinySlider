@@ -108,9 +108,12 @@ nav ul, nav li {
     margin-bottom: 0;
 }
 
-
-
-
+.tiny-container {
+  max-width: 960px;
+  width: 50%;
+  height: 400px;
+  margin: 0 auto;
+}
 
 /* ==========================================================================
    Helper classes
