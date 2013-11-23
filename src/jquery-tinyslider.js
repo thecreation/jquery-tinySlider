@@ -21,18 +21,29 @@
 		var namespace = this.options.namespace;
 
 		// Class
-		this.classes = {};
-		this.classes.activeSlide = namespace + '-slide_active';
-		this.classes.activePager = namespace + '-pager_active';
+		this.classes = {
+			activeSlide: namespace + '-slide_active',
+			activePager: namespace + '-pager_active'
+		};
 
 		this.$element.addClass(namespace + '-container');
-		this.$ul = this.$element.children('ul');
+		this.$ul = this.$element.children('ul').addClass(namespace + '-items');
 		this.$viewport = this.$ul.wrap('<div class="' + namespace + '-viewport" />').parent();
-		this.$slides = this.$ul.children();
+		this.$slides = this.$ul.children().addClass(namespace + '-item');
 
 		var self = this;
 		$.extend(self, {
 			init: function() {
+				self.transition = self.transition();
+
+				if(!self.transition.supported) {
+					self.options.useCSS = false;
+				}
+				if(self.options.useCSS){
+					self.$element.addClass(namespace + '_css');
+					self.options.cycle = false;
+				}
+
 				if (self.options.pager) {
 					this.pager.setup();
 				}
@@ -50,7 +61,7 @@
 
 				// Set up animation
 				self.animations[self.options.animation].setup();
-				self.$viewport.attr('data-animation', self.options.animation);
+				self.$viewport.addClass(namespace + '_' + self.options.animation);
 				self.$viewport.on('go', function(e, data) {
 					e.stopPropagation();
 
@@ -60,6 +71,7 @@
 					});
 
 					self.animations[self.options.animation].run(data);
+					self.current = data.index;
 				});
 
 				// Active the first slide
@@ -114,7 +126,6 @@
 					e.stopPropagation();
 
 					self.isSliding = false;
-					self.current = data.index;
 					self.active(data.index);
 
 					// Fire after event
@@ -195,8 +206,22 @@
 				fade: {
 					setup: function() {},
 					run: function(data) {
-						self.$slides.eq(self.current).fadeOut(self.options.duration, self.options.easing);
-						self.$slides.eq(data.index).fadeIn(self.options.duration, self.options.easing, function() {
+						var $current = self.$slides.eq(self.current);
+						var $to = self.$slides.eq(data.index).css('display','block');
+
+						self.animate($current, {
+							opacity: 0
+						}, self.options.duration, self.options.easing, function(){
+							$current.css('opacity', '');
+						});
+						self.animate($to, {
+							'opacity': 1
+						}, self.options.duration, self.options.easing, function(){
+							$to.css({
+								'opacity': '',
+								'display':''
+							});
+
 							self.$viewport.trigger('animation_end', {
 								index: data.index
 							});
@@ -217,12 +242,13 @@
 					run: function(data) {
 						var duration = self.options.duration;
 						if (data.jump) {
-							duration = duration / 2;
+							duration = Math.floor(duration / 3,10);
 						}
+						
 						if (!self.cycle) {
-							self.$ul.animate({
+							self.animate(self.$ul, {
 								marginLeft: '-' + data.index * 100 + '%'
-							}, duration, self.options.easing, function() {
+							}, duration, self.options.easing, function(){
 								self.$viewport.trigger('animation_end', {
 									index: data.index
 								});
@@ -231,10 +257,10 @@
 							self.$ul.attr('data-cycle', self.cycle);
 							self.$slides.eq(data.index).css('display', 'block');
 							self.$ul.width('200%');
-
 							if (self.cycle === 'prev') {
-								self.$ul.css('marginLeft', '-100%').animate({
-									marginLeft: null
+								self.$ul.css('marginLeft', '-100%')
+								self.animate(self.$ul, {
+									marginLeft: ''
 								}, duration, self.options.easing, function() {
 									self.$ul.attr('data-cycle', null);
 									self.$slides.eq(data.index).css('display', null);
@@ -248,7 +274,8 @@
 									});
 								});
 							} else {
-								self.$ul.css('marginLeft', '0').animate({
+								self.$ul.css('marginLeft', '0');
+								self.animate(self.$ul, {
 									marginLeft: '-100%'
 								}, duration, self.options.easing, function() {
 									self.$ul.attr('data-cycle', null);
@@ -267,50 +294,112 @@
 					}
 				}
 			},
+			animate: function($el, properties, duration, easing, callback){
+				if(self.options.useCSS){
+					self.insertRule('.duration_'+duration+' {'+self.transition.prefix+'transition-duration:'+duration+'ms;}');
+
+					$el.addClass('duration_'+duration+' easing_'+easing).one(self.transition.end, function(){
+						$el.removeClass('duration_'+duration+' easing_'+easing);
+
+						callback.call(this);
+					});
+					window.setTimeout(function(){
+						$el.css(properties);
+					}, 10);
+				} else {
+					$el.animate(properties, duration, easing, callback);
+				}
+			},
+			transition: function () {
+				var e,
+					end,
+					prefix = '',
+					supported   = false,
+					el = document.createElement("fakeelement"),
+					transitions = {
+						"WebkitTransition" : "webkitTransitionEnd",
+						"MozTransition"    : "transitionend",
+						"OTransition"      : "otransitionend",
+						"transition"       : "transitionend"
+					};
+
+				for (e in transitions) {
+					if (el.style[e] !== undefined) {
+						end	  = transitions[e];
+						supported = true;
+						break;
+					}
+				}
+
+				if(/(WebKit)/i.test(window.navigator.userAgent)){
+					prefix = '-webkit';
+				}
+
+				return {
+					prefix	: prefix,
+					end	   : end,
+					supported : supported
+				};
+			},
+			insertRule: function(rule) {
+				if(self.rules && self.rules[rule]){
+					return;
+				} else if (self.rules === undefined){
+					self.rules = {};
+				} else {
+					self.rules[rule] = true;
+				}
+				
+				if(document.styleSheets && document.styleSheets.length) {
+					document.styleSheets[0].insertRule(rule, 0);
+				} else {
+					var style = document.createElement('style');
+					style.innerHTML = rule;
+					document.head.appendChild(style);
+				}
+			},
 			touch: {
-				eventStartType: null,
-				eventMoveType: null,
-				eventEndType: null,
-				touchSupported: false,
-				isTouchSupport: function() {
-					return ("ontouchstart" in window) || window.DocumentTouch && document instanceof DocumentTouch;
+				supported: (("ontouchstart" in window) || window.DocumentTouch && document instanceof DocumentTouch),
+				eventType: function(action) {
+					var eventTypes = {
+						start: (this.supported ? 'touchstart' : 'mousedown'),
+						move: (this.supported ? 'touchmove' : 'mousemove'),
+						end: (this.supported ? 'touchend' : 'mouseup'),
+						cancel: (this.supported ? 'touchcancel' : 'mouseout')
+					};
+					return eventTypes[action];
 				},
 				setup: function() {
-					this.touchSupported = this.isTouchSupport();
-					this.eventStartType = this.touchSupported ? 'touchstart' : 'mousedown';
-					this.eventMoveType = this.touchSupported ? 'touchmove' : 'mousemove';
-					this.eventEndType = this.touchSupported ? 'touchend' : 'mouseup';
-
-					self.$viewport.on(this.eventStartType, $.proxy(this.eventStart, this));
+					self.$viewport.on(this.eventType('start'), $.proxy(this.startTouch, this));
 				},
-				getEventObject: function(event) {
+				getEvent: function(event) {
 					var e = event.originalEvent;
-					if (self.touch.supported) {
+					if (self.touch.supported && e.touches.length && e.touches[0]) {
 						e = e.touches[0];
 					}
 					return e;
 				},
-				eventStart: function(e) {
+				startTouch: function(e) {
 					e.preventDefault();
 
 					if (self.isSliding) {
 						return false;
 					}
-					var event = this.getEventObject(e);
+					var event = this.getEvent(e);
 
 					this.data = {};
 					this.data.start = event.pageX;
 					this.width = self.$viewport.width();
 
-					$(document).on(this.eventMoveType, $.proxy(this.eventMove, this))
-						.on(this.eventEndType, $.proxy(this.eventEnd, this));
+					$(document).on(this.eventType('move'), $.proxy(this.moving, this))
+						.on(this.eventType('end'), $.proxy(this.endTouch, this));
 
 					return false;
 				},
-				eventMove: function(e) {
+				moving: function(e) {
 					e.preventDefault();
 
-					var event = this.getEventObject(e);
+					var event = this.getEvent(e);
 
 					this.data.distance = (event.pageX || this.data.start) - this.data.start;
 
@@ -318,11 +407,11 @@
 						if (this.data.distance / this.width > self.options.touchSensitivity) {
 							self.next();
 
-							$(document).off(this.eventMoveType);
+							$(document).off(this.eventType('move'));
 						} else if (this.data.distance / this.width < -self.options.touchSensitivity) {
 							self.prev();
 
-							$(document).off(this.eventMoveType);
+							$(document).off(this.eventType('move'));
 						}
 					} else {
 						self.$ul.css({
@@ -332,11 +421,11 @@
 
 					return false;
 				},
-				eventEnd: function(e) {
+				endTouch: function(e) {
 					e.preventDefault();
 
-					$(document).off(this.eventMoveType)
-						.off(this.eventEndType);
+					$(document).off(this.eventType('move'))
+						.off(this.eventType('end'));
 
 					if (self.options.animation === 'fade') {
 						return false;
@@ -379,7 +468,7 @@
 		autoplay: true, // Boolean: Animate automatically, true or false
 		pauseOnHover: true, // Boolean: Pause the slideshow when hovering over slider
 
-		/*useCSS: true,*/
+		useCSS: true, // if use CSS transition, cycle will not works
 		touch: true,
 		touchSensitivity: 0.25,
 
@@ -409,7 +498,9 @@
 			var next = this.current + 1;
 			if (next >= this.$slides.length) {
 				next = 0;
-				this.cycle = 'next';
+				if(this.options.cycle){
+					this.cycle = 'next';
+				}	
 			}
 			this.goTo(next);
 		},
@@ -417,7 +508,9 @@
 			var prev = this.current - 1;
 			if (prev < 0) {
 				prev = this.$slides.length - 1;
-				this.cycle = 'prev';
+				if(this.options.cycle){
+					this.cycle = 'prev';
+				}
 			}
 			this.goTo(prev);
 		},

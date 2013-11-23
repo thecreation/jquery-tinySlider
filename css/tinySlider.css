@@ -1,59 +1,58 @@
 .tiny-viewport {
   position: relative;
+  overflow: hidden;
   width: 100%;
   height: 100%;
-  overflow: hidden;
 }
-
-.tiny-viewport ul {
+.tiny-items {
   padding: 0;
   margin: 0;
   overflow: hidden;
   list-style: none;
 }
-
-.tiny-viewport[data-animation="fade"] ul {
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
-
-.tiny-viewport[data-animation="fade"] li {
-  position: absolute;
-  top: 0;
-  left: 0;
-  display: none;
-}
-
-.tiny-viewport[data-animation="slide"] li {
-  position: relative;
-  display: block;
-  float: left;
-}
-
-.tiny-viewport[data-animation="slide"] [data-cycle] li {
-  display: none;
-  float: right;
-}
-
-.tiny-viewport[data-animation="slide"] [data-cycle] li.tiny-slide_active {
-  display: block;
-}
-
-.tiny-viewport li {
-  display: none;
-  height: 100%;
+.tiny-item {
   padding: 0;
   margin: 0;
 }
-
-.tiny-viewport li.tiny-slide_active {
-  display: block;
-}
-
-.tiny-viewport img {
+.tiny-item > img {
   display: block;
   width: 100%;
   height: auto;
   border: 0;
+}
+.tiny_fade .tiny-items {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.tiny_fade .tiny-item {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  display: none;
+}
+.tiny_fade .tiny-slide_active {
+  display: block;
+  opacity: 1;
+}
+.tiny_slide .tiny-item {
+  position: relative;
+  display: block;
+  float: left;
+}
+.tiny_slide [data-cycle] .tiny-item {
+  display: none;
+  float: right;
+}
+.tiny_slide [data-cycle] .tiny-slide_active {
+  display: block;
+}
+.tiny_slide .tiny-items:before,
+.tiny_slide .tiny-items:after {
+  content: " ";
+  display: table;
+}
+.tiny_slide .tiny-items:after {
+  clear: both;
 }

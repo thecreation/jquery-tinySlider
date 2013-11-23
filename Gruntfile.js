@@ -11,6 +11,30 @@ module.exports = function(grunt) {
 		clean: {
 			files: ['dist']
 		},
+		copy: {
+			easing: {
+				files: [{
+					expand: true,
+					flatten: true,
+					cwd: 'bower_components/easing.css',
+					src: [
+					'css/easing.css'
+					],
+					dest: 'css/'
+				}]
+			},
+			jquery: {
+				files: [{
+					expand: true,
+					flatten: true,
+					cwd: 'bower_components/jquery',
+					src: [
+						'jquery.min.js'
+					],
+					dest: 'demo/js/'
+				}]
+			}
+		},
 		concat: {
 			options: {
 				banner: '<%= banner %>',
@@ -100,6 +124,7 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-uglify');
 	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-contrib-watch');
+	grunt.loadNpmTasks('grunt-contrib-copy');
 	grunt.loadNpmTasks('grunt-text-replace');
 	grunt.loadNpmTasks('grunt-jsbeautifier');
 
