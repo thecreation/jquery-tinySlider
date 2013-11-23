@@ -11,7 +11,7 @@ You can include javascript file and css first:
 <script src="path/to/your/jquery-tinyslider.min.js"></script>
 ```
 
-Then init the script for a defined html structure
+Then init the slider for the structure
 
 ```html
 <div class="slides">
@@ -73,8 +73,8 @@ $('element').tinySlider({
 Added css transition support
 
 ## What to do next
-- cycle support for use css transtion
-- keyboard support
+- Cycle support when use css transtion
+- Keyboard support
 
 ## License
 Copyright (c) 2013 AmazingSurge  

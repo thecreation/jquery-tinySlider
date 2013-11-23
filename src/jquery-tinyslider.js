@@ -36,10 +36,10 @@
 			init: function() {
 				self.transition = self.transition();
 
-				if(!self.transition.supported) {
+				if (!self.transition.supported) {
 					self.options.useCSS = false;
 				}
-				if(self.options.useCSS){
+				if (self.options.useCSS) {
 					self.$element.addClass(namespace + '_css');
 					self.options.cycle = false;
 				}
@@ -207,19 +207,19 @@
 					setup: function() {},
 					run: function(data) {
 						var $current = self.$slides.eq(self.current);
-						var $to = self.$slides.eq(data.index).css('display','block');
+						var $to = self.$slides.eq(data.index).css('display', 'block');
 
 						self.animate($current, {
 							opacity: 0
-						}, self.options.duration, self.options.easing, function(){
+						}, self.options.duration, self.options.easing, function() {
 							$current.css('opacity', '');
 						});
 						self.animate($to, {
 							'opacity': 1
-						}, self.options.duration, self.options.easing, function(){
+						}, self.options.duration, self.options.easing, function() {
 							$to.css({
 								'opacity': '',
-								'display':''
+								'display': ''
 							});
 
 							self.$viewport.trigger('animation_end', {
@@ -242,13 +242,13 @@
 					run: function(data) {
 						var duration = self.options.duration;
 						if (data.jump) {
-							duration = Math.floor(duration / 3,10);
+							duration = Math.floor(duration / 3, 10);
 						}
-						
+
 						if (!self.cycle) {
 							self.animate(self.$ul, {
 								marginLeft: '-' + data.index * 100 + '%'
-							}, duration, self.options.easing, function(){
+							}, duration, self.options.easing, function() {
 								self.$viewport.trigger('animation_end', {
 									index: data.index
 								});
@@ -258,7 +258,7 @@
 							self.$slides.eq(data.index).css('display', 'block');
 							self.$ul.width('200%');
 							if (self.cycle === 'prev') {
-								self.$ul.css('marginLeft', '-100%')
+								self.$ul.css('marginLeft', '-100%');
 								self.animate(self.$ul, {
 									marginLeft: ''
 								}, duration, self.options.easing, function() {
@@ -294,63 +294,63 @@
 					}
 				}
 			},
-			animate: function($el, properties, duration, easing, callback){
-				if(self.options.useCSS){
-					self.insertRule('.duration_'+duration+' {'+self.transition.prefix+'transition-duration:'+duration+'ms;}');
+			animate: function($el, properties, duration, easing, callback) {
+				if (self.options.useCSS) {
+					self.insertRule('.duration_' + duration + ' {' + self.transition.prefix + 'transition-duration:' + duration + 'ms;}');
 
-					$el.addClass('duration_'+duration+' easing_'+easing).one(self.transition.end, function(){
-						$el.removeClass('duration_'+duration+' easing_'+easing);
+					$el.addClass('duration_' + duration + ' easing_' + easing).one(self.transition.end, function() {
+						$el.removeClass('duration_' + duration + ' easing_' + easing);
 
 						callback.call(this);
 					});
-					window.setTimeout(function(){
+					window.setTimeout(function() {
 						$el.css(properties);
 					}, 10);
 				} else {
 					$el.animate(properties, duration, easing, callback);
 				}
 			},
-			transition: function () {
+			transition: function() {
 				var e,
 					end,
 					prefix = '',
-					supported   = false,
+					supported = false,
 					el = document.createElement("fakeelement"),
 					transitions = {
-						"WebkitTransition" : "webkitTransitionEnd",
-						"MozTransition"    : "transitionend",
-						"OTransition"      : "otransitionend",
-						"transition"       : "transitionend"
+						"WebkitTransition": "webkitTransitionEnd",
+						"MozTransition": "transitionend",
+						"OTransition": "otransitionend",
+						"transition": "transitionend"
 					};
 
 				for (e in transitions) {
 					if (el.style[e] !== undefined) {
-						end	  = transitions[e];
+						end = transitions[e];
 						supported = true;
 						break;
 					}
 				}
 
-				if(/(WebKit)/i.test(window.navigator.userAgent)){
+				if (/(WebKit)/i.test(window.navigator.userAgent)) {
 					prefix = '-webkit';
 				}
 
 				return {
-					prefix	: prefix,
-					end	   : end,
-					supported : supported
+					prefix: prefix,
+					end: end,
+					supported: supported
 				};
 			},
 			insertRule: function(rule) {
-				if(self.rules && self.rules[rule]){
+				if (self.rules && self.rules[rule]) {
 					return;
-				} else if (self.rules === undefined){
+				} else if (self.rules === undefined) {
 					self.rules = {};
 				} else {
 					self.rules[rule] = true;
 				}
-				
-				if(document.styleSheets && document.styleSheets.length) {
+
+				if (document.styleSheets && document.styleSheets.length) {
 					document.styleSheets[0].insertRule(rule, 0);
 				} else {
 					var style = document.createElement('style');
@@ -498,9 +498,9 @@
 			var next = this.current + 1;
 			if (next >= this.$slides.length) {
 				next = 0;
-				if(this.options.cycle){
+				if (this.options.cycle) {
 					this.cycle = 'next';
-				}	
+				}
 			}
 			this.goTo(next);
 		},
@@ -508,7 +508,7 @@
 			var prev = this.current - 1;
 			if (prev < 0) {
 				prev = this.$slides.length - 1;
-				if(this.options.cycle){
+				if (this.options.cycle) {
 					this.cycle = 'prev';
 				}
 			}

@@ -18,7 +18,7 @@ module.exports = function(grunt) {
 					flatten: true,
 					cwd: 'bower_components/easing.css',
 					src: [
-					'css/easing.css'
+						'css/easing.css'
 					],
 					dest: 'css/'
 				}]
