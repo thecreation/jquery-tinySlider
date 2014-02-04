@@ -1,6 +1,6 @@
-/*! jQuery TinySlider - v0.4.0 - 2013-11-23
+/*! jQuery TinySlider - v0.4.1 - 2014-02-04
 * https://github.com/amazingSurge/jquery-tinySlider
-* Copyright (c) 2013 amazingSurge; Licensed GPL */
+* Copyright (c) 2014 amazingSurge; Licensed GPL */
 (function(window, document, $, undefined) {
 	"use strict";
 
@@ -335,7 +335,7 @@
 				}
 
 				if (/(WebKit)/i.test(window.navigator.userAgent)) {
-					prefix = '-webkit';
+					prefix = '-webkit-';
 				}
 
 				return {
@@ -552,6 +552,8 @@
 				var api = $.data(this, 'tinyslider');
 				if (typeof api[method] === 'function') {
 					api[method].apply(api, method_arguments);
+				} else {
+					throw new Error("Method " + method + " does not exist.");
 				}
 			});
 		} else {

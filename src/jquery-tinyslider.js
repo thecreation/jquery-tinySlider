@@ -332,7 +332,7 @@
 				}
 
 				if (/(WebKit)/i.test(window.navigator.userAgent)) {
-					prefix = '-webkit';
+					prefix = '-webkit-';
 				}
 
 				return {
@@ -549,6 +549,8 @@
 				var api = $.data(this, 'tinyslider');
 				if (typeof api[method] === 'function') {
 					api[method].apply(api, method_arguments);
+				} else {
+					throw new Error("Method " + method + " does not exist.");
 				}
 			});
 		} else {
