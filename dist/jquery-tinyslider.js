@@ -1,4 +1,4 @@
-/*! jQuery TinySlider - v0.4.1 - 2014-02-04
+/*! jQuery TinySlider - v0.4.2 - 2014-02-27
 * https://github.com/amazingSurge/jquery-tinySlider
 * Copyright (c) 2014 amazingSurge; Licensed GPL */
 (function(window, document, $, undefined) {
@@ -127,15 +127,13 @@
 
 				self.$viewport.on('animation_end', function(e, data) {
 					e.stopPropagation();
-
-					self.isSliding = false;
 					self.active(data.index);
 
 					// Fire after event
 					if (typeof self.options.onAfter === 'function') {
 						self.options.onAfter.call(self, data);
 					}
-
+					self.isSliding = false;
 					if (self.wait) {
 						self.goTo(self.wait);
 					} else if (self.autoplay.enabled) {
@@ -347,9 +345,10 @@
 			insertRule: function(rule) {
 				if (self.rules && self.rules[rule]) {
 					return;
-				} else if (self.rules === undefined) {
-					self.rules = {};
 				} else {
+					if (self.rules === undefined) {
+						self.rules = {};
+					}
 					self.rules[rule] = true;
 				}
 

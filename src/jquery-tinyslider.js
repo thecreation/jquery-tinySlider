@@ -124,15 +124,13 @@
 
 				self.$viewport.on('animation_end', function(e, data) {
 					e.stopPropagation();
-
-					self.isSliding = false;
 					self.active(data.index);
 
 					// Fire after event
 					if (typeof self.options.onAfter === 'function') {
 						self.options.onAfter.call(self, data);
 					}
-
+					self.isSliding = false;
 					if (self.wait) {
 						self.goTo(self.wait);
 					} else if (self.autoplay.enabled) {
@@ -344,9 +342,10 @@
 			insertRule: function(rule) {
 				if (self.rules && self.rules[rule]) {
 					return;
-				} else if (self.rules === undefined) {
-					self.rules = {};
 				} else {
+					if (self.rules === undefined) {
+						self.rules = {};
+					}
 					self.rules[rule] = true;
 				}
 
