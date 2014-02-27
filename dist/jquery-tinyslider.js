@@ -1,6 +1,9 @@
-/*! jQuery TinySlider - v0.4.2 - 2014-02-27
+/*! jQuery TinySlider - v0.4.2 - 2014-02-28
 * https://github.com/amazingSurge/jquery-tinySlider
 * Copyright (c) 2014 amazingSurge; Licensed GPL */
+/*! jQuery TinySlider - v0.4.2 - 2014-02-27
+ * https://github.com/amazingSurge/jquery-tinySlider
+ * Copyright (c) 2014 amazingSurge; Licensed GPL */
 (function(window, document, $, undefined) {
 	"use strict";
 
@@ -134,7 +137,7 @@
 						self.options.onAfter.call(self, data);
 					}
 					self.isSliding = false;
-					if (self.wait) {
+					if (self.wait && data.index != self.wait) {
 						self.goTo(self.wait);
 					} else if (self.autoplay.enabled) {
 						self.autoplay.start();
