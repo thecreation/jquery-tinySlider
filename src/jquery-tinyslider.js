@@ -1,6 +1,3 @@
-/*! jQuery TinySlider - v0.4.2 - 2014-02-27
- * https://github.com/amazingSurge/jquery-tinySlider
- * Copyright (c) 2014 amazingSurge; Licensed GPL */
 (function(window, document, $, undefined) {
 	"use strict";
 
