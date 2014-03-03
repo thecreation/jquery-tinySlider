@@ -1,4 +1,4 @@
-/*! jQuery TinySlider - v0.4.2 - 2014-02-28
+/*! jQuery TinySlider - v0.4.3 - 2014-03-03
 * https://github.com/amazingSurge/jquery-tinySlider
 * Copyright (c) 2014 amazingSurge; Licensed GPL */
 (function(window, document, $, undefined) {
@@ -37,6 +37,10 @@
 		var self = this;
 		$.extend(self, {
 			init: function() {
+				self.current = 0;
+				self.wait = null;
+				self.cycle = false;
+				self.isSliding = false;
 				self.transition = self.transition();
 
 				if (!self.transition.supported) {
@@ -78,10 +82,6 @@
 				});
 
 				// Active the first slide
-				self.current = 0;
-				self.wait = null;
-				self.cycle = false;
-				self.isSliding = false;
 				self.active(self.current);
 
 				// Fire start event
@@ -140,6 +140,18 @@
 						self.autoplay.start();
 					}
 				});
+
+				// Fire after event
+				if (typeof self.options.onAfter === 'function') {
+					self.options.onAfter.call(self);
+				}
+
+				// Fire before event
+				if (typeof self.options.onResize === 'function') {
+					$(window).on('resize', function() {
+						self.options.onResize.call(self);
+					});
+				}
 			},
 			autoplay: {
 				enabled: false,
@@ -173,9 +185,12 @@
 
 					self.pager.$items = self.$pager.children();
 					self.pager.bind();
+
+					// active first
+					self.pager.active(self.current);
 				},
 				bind: function() {
-					self.$viewport.on('go', function(e, data) {
+					self.$viewport.on('animation_start', function(e, data) {
 						self.pager.active(data.index);
 					});
 					self.$pager.delegate('li', "click", function() {
@@ -478,7 +493,7 @@
 		onStart: null, // Callback: function(slider) - Fires when the slider loads the first slide
 		onBefore: null, // Callback: function(slider) - Fires asynchronously with each slider animation
 		onAfter: null, // Callback: function(slider) - Fires after each slider animation completes
-		onEnd: null // Callback: function(slider) - Fires when the slider reaches the last slide (asynchronous)
+		onResize: null // Callback: function(slider) - Fires when resize
 	};
 
 	TinySlider.prototype = {
