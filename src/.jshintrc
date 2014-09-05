@@ -10,6 +10,7 @@
   "unused": true,
   "boss": true,
   "eqnull": true,
-  "browser": true,
-  "predef": ["jQuery"]
+  "node": true,
+  "es5": false,
+  "predef": ["window","document","jQuery"]
 }
