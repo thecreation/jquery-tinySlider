@@ -1,6 +1,6 @@
-/*! jQuery TinySlider - v0.4.4 - 2014-09-06
+/*! jQuery TinySlider - v0.4.5 - 2015-04-15
 * https://github.com/amazingSurge/jquery-tinySlider
-* Copyright (c) 2014 amazingSurge; Licensed GPL */
+* Copyright (c) 2015 amazingSurge; Licensed GPL */
 (function(window, document, $, undefined) {
     "use strict";
 
@@ -421,6 +421,14 @@
                 },
                 setup: function() {
                     self.$viewport.on(this.eventType('start'), $.proxy(this.startTouch, this));
+
+                    self.$slides.find('a').on(this.eventType('start'), function(e) {
+                        this.timeStamp = e.timeStamp;
+                    }).on('click', function(e) {
+                        if (this.timeStamp && (e.timeStamp - this.timeStamp > 400)) {
+                            e.preventDefault(); // prevent Click
+                        }
+                    });
                 },
                 getEvent: function(event) {
                     var e = event.originalEvent;
@@ -430,7 +438,7 @@
                     return e;
                 },
                 startTouch: function(e) {
-                    e.preventDefault();
+                    //e.preventDefault();
 
                     if (self.isSliding) {
                         return false;
@@ -444,10 +452,10 @@
                     $(document).on(this.eventType('move'), $.proxy(this.moving, this))
                         .on(this.eventType('end'), $.proxy(this.endTouch, this));
 
-                    return false;
+                    //return false;
                 },
                 moving: function(e) {
-                    e.preventDefault();
+                    //e.preventDefault();
 
                     var event = this.getEvent(e);
 
@@ -469,10 +477,10 @@
                         });
                     }
 
-                    return false;
+                    //return false;
                 },
                 endTouch: function(e) {
-                    e.preventDefault();
+                    //e.preventDefault();
 
                     $(document).off(this.eventType('move'))
                         .off(this.eventType('end'));
@@ -491,7 +499,7 @@
 
                     self.jumpTo(index);
 
-                    return false;
+                    //return false;
                 }
             }
         });
