@@ -68,14 +68,6 @@ $('element').tinySlider({
 });
 ```
 
-## Release History
-### v4.0.0 (Nov 23, 2013)
-Added css transition support
-
-## What to do next
-- Cycle support when use css transtion
-- Keyboard support
-
 ## License
-Copyright (c) 2013 AmazingSurge  
+Copyright (c) 2015 AmazingSurge  
 Licensed under the GPL license.

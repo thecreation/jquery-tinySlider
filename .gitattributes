@@ -20,5 +20,5 @@
 *.ttf binary
 
 # https://github.com/github/linguist#using-gitattributes
-# libs/* linguist-vendored
+css/* linguist-vendored
 demo/* linguist-documentation
