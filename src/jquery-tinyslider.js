@@ -1,8 +1,8 @@
 /*
  * jQuery TinySlider
- * https://github.com/amazingsurge/jquery-tinySlider
+ * https://github.com/amazingSurge/jquery-tinySlider
  *
- * Copyright (c) 2015 amazingsurge
+ * Copyright (c) 2015 amazingSurge
  * Licensed under the GPL license.
  */
 (function(window, document, $, undefined) {

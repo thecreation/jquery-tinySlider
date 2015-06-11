@@ -36,7 +36,7 @@
     "grunt-text-replace": "*",
     "grunt-jsbeautifier": "*",
     "load-grunt-tasks": "*",
-    "grunt": "~0.4.5"
+    "grunt": "*"
   },
   "keywords": []
 }
